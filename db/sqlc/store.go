@@ -64,6 +64,7 @@ type TransferTxResult struct {
 // TransferTx performs a money transfer from one account to the other.
 // It creates a transfer record, add account entries, and update accounts balance within a single database transaction
 func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+	// TODO handle transfer when balance is less than amount
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {

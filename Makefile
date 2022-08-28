@@ -1,6 +1,9 @@
 postgres:
 	sudo docker run --name postgres14 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:14.4-alpine
 
+postgresrestart:
+	sudo docker restart postgres14
+
 createdb:
 	sudo docker exec -t postgres14 createdb --username=root --owner=root simple_bank
 
@@ -25,4 +28,4 @@ server:
 mock:
 	mockgen -build_flags=--mod=mod -package mockdb -destination db/mock/store.go github.com/dbsSensei/simplebank/db/sqlc Store
 
-.PHONY: postgres createdb dropdb migrateup migratedown
+.PHONY: postgres postgresrestart createdb dropdb migrateup migratedown sqlc test server mock
