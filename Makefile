@@ -1,5 +1,8 @@
+banknetwork:
+	sudo docker network create bank-network
+
 postgres:
-	sudo docker run --name postgres14 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:14.4-alpine
+	sudo docker run --name postgres14 --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:14.4-alpine
 
 postgresrestart:
 	sudo docker restart postgres14
@@ -27,5 +30,11 @@ server:
 
 mock:
 	mockgen -build_flags=--mod=mod -package mockdb -destination db/mock/store.go github.com/dbsSensei/simplebank/db/sqlc Store
+
+dockerbuild:
+	sudo docker build -t simplebank:latest .
+
+dockerserver:
+	sudo docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres14:5432/simple_bank?sslmode=disable" simplebank:latest
 
 .PHONY: postgres postgresrestart createdb dropdb migrateup migratedown sqlc test server mock
