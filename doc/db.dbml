@@ -1,0 +1,53 @@
+Project simple_bank {
+  database_type: 'PostgreSQL'
+  Note: '''
+   # Simple Bank Database
+  '''
+}
+
+TABLE "users" {
+  username varchar [PK]
+  hashed_password varchar [NOT NULL]
+  full_name varchar [NOT NULL]
+  email varchar [UNIQUE, NOT NULL]
+  password_change_at timestamptz [NOT NULL, DEFAULT: '0001-01-01 00:00:00Z']
+  created_at timestamptz [NOT NULL, DEFAULT: `now()`]
+}
+
+TABLE "accounts" {
+  "id" bigserial [PK]
+  "owner" varchar [ref: > "users".username, NOT NULL]
+  "balance" bigint [NOT NULL]
+  "currency" varchar [NOT NULL]
+  "created_at" timestamptz [NOT NULL, DEFAULT: `now()`]
+
+  indexes {
+    owner
+    (owner, currency) [UNIQUE]
+  }
+}
+
+TABLE "entries" {
+  "id" bigserial [PRIMARY KEY]
+  "account_id" bigint [ref: > "accounts".id, NOT NULL]
+  "amount" bigint [NOT NULL]
+  "created_at" timestamptz [NOT NULL, DEFAULT: `now()`]
+
+  indexes {
+    account_id
+  }
+}
+
+TABLE "transfers" {
+  "id" bigserial [PK]
+  "from_account_id" bigint [ref: > "accounts".id, NOT NULL]
+  "to_account_id" bigint [ref: > "accounts".id, NOT NULL]
+  "amount" bigint [NOT NULL, note: 'must be positive']
+  "created_at" timestamptz [NOT NULL, DEFAULT: `now()`]
+
+  indexes {
+    from_account_id
+    to_account_id
+    (from_account_id, to_account_id)
+  }
+}

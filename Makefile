@@ -37,4 +37,13 @@ dockerbuild:
 dockerserver:
 	sudo docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres14:5432/simple_bank?sslmode=disable" simplebank:latest
 
-.PHONY: postgres postgresrestart createdb dropdb migrateup migratedown sqlc test server mock
+proto:
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+		--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+		proto/*.proto
+
+evans:
+	evans --host localhost --port 9090 -r repl
+
+.PHONY: postgres postgresrestart createdb dropdb migrateup migratedown sqlc test server mock proto evans
